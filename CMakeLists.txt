@@ -18,7 +18,13 @@ include(FindImNodeFlowVendor)
 set(target "${CMAKE_PROJECT_NAME}")
 set(source_files
   src/main.cpp
+  src/node.cpp
+  src/node.h
 )
 
 add_executable(${target} ${source_files})
-target_link_libraries(${target} SDL3::SDL3 ImGui::ImGui)
+target_link_libraries(${target} PRIVATE
+  SDL3::SDL3
+  ImGui::ImGui
+  ImNodeFlow::ImNodeFlow
+)

@@ -1,3 +1,4 @@
+#include "node.h"
 #include <SDL3/SDL.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
@@ -48,6 +49,9 @@ int main() {
   bool running = true;
   SDL_Event e;
 
+  std::shared_ptr<NodeEditor> node_editor =
+      std::make_shared<NodeEditor>(500, 500);
+
   while (running) {
     while (SDL_PollEvent(&e)) {
       ImGui_ImplSDL3_ProcessEvent(&e);
@@ -75,6 +79,13 @@ int main() {
       }
       ImGui::PlotLines("Samples", samples, IM_ARRAYSIZE(samples));
       ImGui::PlotHistogram("Samples", samples, IM_ARRAYSIZE(samples));
+      ImGui::End();
+    }
+
+
+    static bool show_editor = true;
+    if (ImGui::Begin("Node Editor", &show_editor, ImGuiWindowFlags_None)) {
+      node_editor->draw();
       ImGui::End();
     }
 
