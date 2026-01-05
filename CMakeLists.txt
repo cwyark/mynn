@@ -11,6 +11,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FindSDL3Vendor)
 include(FindImGuiVendor)
 include(FindImNodeFlowVendor)
+include(FindTorchVendor)
 
 set(target "${CMAKE_PROJECT_NAME}")
 set(source_files
@@ -24,4 +25,6 @@ target_link_libraries(${target} PRIVATE
   SDL3::SDL3
   ImGui::ImGui
   ImNodeFlow::ImNodeFlow
+  ${TORCH_LIBRARIES}
 )
+target_link_directories(${target} PRIVATE ${TORCH_INCLUDE_DIRS})
