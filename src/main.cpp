@@ -3,6 +3,9 @@
 #include <backends/imgui_impl_sdlrenderer3.h>
 #include <cmath>
 #include <imgui.h>
+#include <memory>
+
+#include "node.h"
 
 int main() {
   SDL_Log("start mynn program");
@@ -48,6 +51,8 @@ int main() {
   bool running = true;
   SDL_Event e;
 
+  std::shared_ptr<NodeEditor> node_editor =
+      std::make_shared<NodeEditor>(500, 500);
   while (running) {
     while (SDL_PollEvent(&e)) {
       ImGui_ImplSDL3_ProcessEvent(&e);
@@ -78,6 +83,11 @@ int main() {
       ImGui::End();
     }
 
+    static bool show_editor = true;
+    if (ImGui::Begin("Node Editor", &show_editor, ImGuiWindowFlags_None)) {
+      node_editor->draw();
+      ImGui::End();
+    }
     ImGui::Render();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);

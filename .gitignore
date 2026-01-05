@@ -1,3 +1,8 @@
 build
 .cache
 imgui.ini
+build-imnodeflow-check
+<<<<<<< HEAD
+=======
+build-imnodeflow-check
+>>>>>>> imnodeflow-editor-branch
