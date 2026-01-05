@@ -7,6 +7,8 @@
 
 #include "node.h"
 
+#include <torch/torch.h>
+
 int main() {
   SDL_Log("start mynn program");
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -74,6 +76,10 @@ int main() {
     if (ImGui::Begin("Preview Window", &show_window,
                      ImGuiWindowFlags_MenuBar)) {
       ImGui::Text("Hello World!");
+      if (ImGui::Button("create an tensor")) {
+        torch::Tensor tensor = torch::rand({2, 3});
+        std::cout << tensor << std::endl;
+      }
       float samples[120];
       for (int i = 0; i < 120; ++i) {
         samples[i] = sinf(i * 0.2f + ImGui::GetTime() * 1.5f);
