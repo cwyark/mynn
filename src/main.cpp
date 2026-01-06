@@ -7,6 +7,7 @@
 
 #include "node.h"
 
+#include "model/inspector.h"
 #include <torch/torch.h>
 
 int main() {
@@ -55,6 +56,11 @@ int main() {
 
   std::shared_ptr<NodeEditor> node_editor =
       std::make_shared<NodeEditor>(500, 500);
+
+  // load model first here
+  auto model_inspector =
+      std::make_unique<ModelInspector>("models/MobileNet-v2.onnx");
+
   while (running) {
     while (SDL_PollEvent(&e)) {
       ImGui_ImplSDL3_ProcessEvent(&e);

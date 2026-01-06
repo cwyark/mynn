@@ -19,8 +19,9 @@ set(source_files
   src/main.cpp
   src/node.cpp
   src/node.h
-  src/model/inspecter.cpp
-  src/model/inspecter.h
+  src/model/inspector.cpp
+  src/model/inspector.h
+  src/model/types.h
 )
 
 add_executable(${target} ${source_files})
