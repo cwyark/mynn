@@ -12,12 +12,15 @@ include(FindSDL3Vendor)
 include(FindImGuiVendor)
 include(FindImNodeFlowVendor)
 include(FindTorchVendor)
+include(FindOnnxRuntimeVendor)
 
 set(target "${CMAKE_PROJECT_NAME}")
 set(source_files
   src/main.cpp
   src/node.cpp
   src/node.h
+  src/model/inspecter.cpp
+  src/model/inspecter.h
 )
 
 add_executable(${target} ${source_files})
@@ -26,5 +29,6 @@ target_link_libraries(${target} PRIVATE
   ImGui::ImGui
   ImNodeFlow::ImNodeFlow
   ${TORCH_LIBRARIES}
+  onnxruntime
 )
 target_link_directories(${target} PRIVATE ${TORCH_INCLUDE_DIRS})
