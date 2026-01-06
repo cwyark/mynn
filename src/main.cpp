@@ -8,7 +8,9 @@
 #include "node.h"
 
 #include "model/inspector.h"
+#if 0
 #include <torch/torch.h>
+#endif 
 
 int main() {
   SDL_Log("start mynn program");
@@ -82,10 +84,12 @@ int main() {
     if (ImGui::Begin("Preview Window", &show_window,
                      ImGuiWindowFlags_MenuBar)) {
       ImGui::Text("Hello World!");
+#if 0
       if (ImGui::Button("create an tensor")) {
         torch::Tensor tensor = torch::rand({2, 3});
         std::cout << tensor << std::endl;
       }
+#endif
       float samples[120];
       for (int i = 0; i < 120; ++i) {
         samples[i] = sinf(i * 0.2f + ImGui::GetTime() * 1.5f);
