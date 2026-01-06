@@ -11,8 +11,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FindSDL3Vendor)
 include(FindImGuiVendor)
 include(FindImNodeFlowVendor)
-include(FindTorchVendor)
 include(FindOnnxRuntimeVendor)
+include(FindTorchVendor)
+include(FindProtobufVendor)
+include(FindOnnxVendor)
 
 set(target "${CMAKE_PROJECT_NAME}")
 set(source_files
@@ -25,11 +27,13 @@ set(source_files
 )
 
 add_executable(${target} ${source_files})
-target_link_libraries(${target} PRIVATE
+set(_target_link_libs
   SDL3::SDL3
-  ImGui::ImGui
-  ImNodeFlow::ImNodeFlow
-  ${TORCH_LIBRARIES}
+  ImGui
+  ImNodeFlow
   onnxruntime
+  onnx
+  onnx_proto
+  ${Protobuf_LIBRARIES}
 )
-target_link_directories(${target} PRIVATE ${TORCH_INCLUDE_DIRS})
+target_link_libraries(${target} PRIVATE ${_target_link_libs})

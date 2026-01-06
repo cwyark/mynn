@@ -1,7 +1,4 @@
 #
-# This module uses CMake's FetchContent to download and make SDL3 available
-# to the current project. The SDL3 version and URL can be overridden.
-#
 # Usage (in your CMakeLists.txt):
 #   set(SDL3_VENDOR_VERSION "3.4.0" CACHE STRING "SDL3 version to fetch")
 #   set(SDL3_VENDOR_URL "https://github.com/libsdl-org/SDL/archive/refs/tags/release-${SDL3_VENDOR_VERSION}.tar.gz" CACHE STRING "SDL3 source tarball URL")
@@ -42,12 +39,6 @@ if (NOT sdl3_POPULATED)
   FetchContent_MakeAvailable(SDL3)
 endif ()
 
-# At this point, SDL3's CMake project should have created an imported target.
-# Commonly this target is named SDL3::SDL3. We do not enforce the exact name
-# here, but consumers can link against SDL3::SDL3 if it exists.
-
-# Try a cheap check so users get a clearer message if the expected target
-# does not exist.
 if (TARGET SDL3::SDL3)
   message(STATUS "SDL3::SDL3 target is available from vendored SDL3")
 else ()
