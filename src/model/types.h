@@ -1,3 +1,5 @@
+#pragma once
+
 #include <map>
 #include <string>
 #include <vector>
@@ -17,47 +19,61 @@ enum eModelTensorDataType {
   MODEL_TENSOR_DATA_TYPE_FLOAT32,
   MODEL_TENSOR_DATA_TYPE_DOUBLE,
   MODEL_TENSOR_DATA_TYPE_BFLOAT16,
+  MODEL_TENSOR_DATA_TYPE_BOOL,
+  MODEL_TENSOR_DATA_TYPE_STRING,
   MODEL_TENSOR_DATA_TYPE_UNDEFINED = -1,
 };
 
-struct sModelTensorDesc {
+struct sModelGraphNode;
+struct sModelGraphEdge;
+struct sModelTensor;
+struct sModelGraph;
+
+struct sModelTensor {
   // tensor name
   std::string name;
   // tensor shape
   std::vector<int64_t> shape;
   // tensor data type
   enum eModelTensorDataType tensorDataType;
-};
-
-struct sModelGraphEdge;
-struct sModelGraphNode;
-
-struct sModelGraphNode {
-  // node op type, e.g. Conv, Conv2D, Linear, ReLu, ..
-  std::string op_type;
-  // node name
-  std::string name;
-  // node inputs
-  std::vector<sModelGraphEdge> inputs;
-  // node outputs
-  std::vector<sModelGraphEdge> outputs;
-  // node attributes. e.g. kernel_size, stride, ..
-  std::map<std::string, std::string> attributes;
-  int64_t param_count;
-  double flops_estimate;
+  // this this tensor a constant/initializer/parmeter
+  bool is_initializer;
 };
 
 struct sModelGraphEdge {
-  // edge name
+  // tensor name. same as tensor.name
   std::string name;
-  // edge tensor description
-  sModelTensorDesc &tensor_desc;
-  // edge source. Must be a valid node.
-  sModelGraphNode &source_node;
-  // edge tail. Must be a valid node.
-  sModelGraphNode &tail_node;
+  // index into sModelGraph::tensors
+  int tensor_index = -1;
+  // -1 if this is a graph input
+  int source_node = -1;
+  // -1 if this is a graph output
+  int target_node = -1;
+};
+
+struct sModelGraphNode {
+  // node name
+  std::string name;
+  // node op type, e.g. Conv, Conv2D, Linear, ReLu, ..
+  std::string op_type;
+  // node inputs
+  std::vector<int> input_edges;
+  // node outputs
+  std::vector<int> output_edges;
+  // node attributes. e.g. kernel_size, stride, ..
+  std::map<std::string, std::string> attributes;
 };
 
 struct sModelGraph {
-  sModelGraphNode *root_node;
+  // all logic tensors in the graph
+  std::vector<sModelTensor> tensors;
+  // all operation nodes
+  std::vector<sModelGraphNode> nodes;
+  // all edges (connections) between nodes via tensors.
+  std::vector<sModelGraphEdge> edges;
+
+  // graph input and output tensors. corresponds to onnx graph, TF placeholder,
+  // torch inputs
+  std::vector<int> input_tensors;
+  std::vector<int> output_tensors;
 };
