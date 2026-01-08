@@ -22,8 +22,10 @@ include(FindOnnxVendor)
 set(target "${CMAKE_PROJECT_NAME}")
 set(source_files
   src/main.cpp
-  src/node.cpp
-  src/node.h
+  src/widget/model_viewer/node.cpp
+  src/widget/model_viewer/node.h
+  src/widget/model_viewer/viewer.cpp
+  src/widget/model_viewer/viewer.h
   src/model/inspector.cpp
   src/model/inspector.h
   src/model/types.h
