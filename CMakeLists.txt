@@ -11,6 +11,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FindSDL3Vendor)
 include(FindImGuiVendor)
 include(FindImNodeFlowVendor)
+include(FindImGuiFileDialogVendor)
+include(findImPlot2DVendor)
+include(findImPlot3DVendor)
 include(FindOnnxRuntimeVendor)
 include(FindTorchVendor)
 include(FindProtobufVendor)
@@ -29,8 +32,11 @@ set(source_files
 add_executable(${target} ${source_files})
 set(_target_link_libs
   SDL3::SDL3
-  ImGui
-  ImNodeFlow
+  imgui::imgui
+  imgui::ImNodeFlow
+  imgui::ImGuiFileDialog
+  imgui::ImPlot2D
+  imgui::ImPlot3D
   onnxruntime
   onnx
   onnx_proto
