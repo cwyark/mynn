@@ -40,8 +40,9 @@ int main() {
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  // ImGuiIO &io = ImGui::GetIO();
-  // io.Fonts->Clear();
+  ImGuiIO &io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
   ImGui::StyleColorsDark();
 
@@ -58,6 +59,9 @@ int main() {
   SDL_Event e;
 
   auto model_viewer = std::make_shared<ModelViewer>();
+  bool show_demo_window = true;
+  bool show_preview_window = true;
+  bool show_model_viewer = true;
 
   while (running) {
     while (SDL_PollEvent(&e)) {
@@ -75,8 +79,24 @@ int main() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
-    // show widget
-    static bool show_preview_window = true;
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID,
+                                 ImGui::GetMainViewport(),
+                                 ImGuiDockNodeFlags_None);
+
+    if (ImGui::BeginMainMenuBar()) {
+      if (ImGui::BeginMenu("Windows")) {
+        ImGui::MenuItem("Demo Window", nullptr, &show_demo_window);
+        ImGui::MenuItem("Preview Window", nullptr, &show_preview_window);
+        ImGui::MenuItem("Model Viewer", nullptr, &show_model_viewer);
+        ImGui::EndMenu();
+      }
+      ImGui::EndMainMenuBar();
+    }
+
+    if (show_demo_window) {
+      ImGui::ShowDemoWindow(&show_demo_window);
+    }
+
     if (show_preview_window) {
       if (ImGui::Begin("Preview Window", &show_preview_window,
                        ImGuiWindowFlags_MenuBar)) {
@@ -97,7 +117,6 @@ int main() {
       }
     }
 
-    static bool show_model_viewer = true;
     if (show_model_viewer) {
       if (ImGui::Begin("Model Viewer", &show_model_viewer,
                        ImGuiWindowFlags_None)) {
