@@ -1,12 +1,9 @@
 #include "viewer.h"
 
-#include <algorithm>
-#include <functional>
 #include <limits>
 #include <map>
 #include <queue>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 ModelViewer::ModelViewer()
