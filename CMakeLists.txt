@@ -26,6 +26,8 @@ set(source_files
   src/widget/model_viewer/node.h
   src/widget/model_viewer/viewer.cpp
   src/widget/model_viewer/viewer.h
+  src/widget/nav/nav.cpp
+  src/widget/nav/nav.h
   src/model/inspector.cpp
   src/model/inspector.h
   src/model/types.h
