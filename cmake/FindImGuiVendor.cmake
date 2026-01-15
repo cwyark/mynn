@@ -1,7 +1,7 @@
 include(FetchContent)
 include(FindSDL3Vendor)
 
-set(IMGUI_VENDOR_VERSION "1.92.5" CACHE STRING "ImGui version to fetch via FetchContent")
+set(IMGUI_VENDOR_VERSION "1.92.5-docking" CACHE STRING "ImGui version to fetch via FetchContent")
 set(IMGUI_VENDOR_URL "https://github.com/ocornut/imgui/archive/refs/tags/v${IMGUI_VENDOR_VERSION}.tar.gz" CACHE STRING "ImGui source tarball URL for ImGui")
 
 message(STATUS "Fetching ImGui v${IMGUI_VENDOR_VERSION} from ${IMGUI_VENDOR_URL}")

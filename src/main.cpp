@@ -1,14 +1,11 @@
 #include <SDL3/SDL.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
-#include <cmath>
 #include <imgui.h>
 #include <memory>
 
-#include "widget/model_viewer/node.h"
 #include "widget/model_viewer/viewer.h"
 
-#include "model/inspector.h"
 #if 0
 #include <torch/torch.h>
 #endif
@@ -40,10 +37,27 @@ int main() {
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  // ImGuiIO &io = ImGui::GetIO();
-  // io.Fonts->Clear();
+  ImGuiIO &io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+  // make the fonts more sharp to look a higher resolution.
+  io.Fonts->Clear();
+  ImFontConfig font_cfg;
+  font_cfg.OversampleH = 3; // better quality
+  font_cfg.OversampleV = 3;
+  font_cfg.PixelSnapH = false;
+  io.Fonts->AddFontFromFileTTF("./font/DroidSans.ttf", 20.0f, &font_cfg);
+
+  io.ConfigDpiScaleFonts = true;
+  io.ConfigDpiScaleViewports = true;
 
   ImGui::StyleColorsDark();
+  ImGuiStyle &style = ImGui::GetStyle();
+
+  style.FontSizeBase = 15.0f;
+  style.FontScaleMain = 1.0f;
+  style.FontScaleDpi = 1.0f;
 
   if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer) ||
       !ImGui_ImplSDLRenderer3_Init(renderer)) {
@@ -58,6 +72,8 @@ int main() {
   SDL_Event e;
 
   auto model_viewer = std::make_shared<ModelViewer>();
+  bool show_demo_window = true;
+  bool show_model_viewer = true;
 
   while (running) {
     while (SDL_PollEvent(&e)) {
@@ -75,29 +91,43 @@ int main() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
-    // show widget
-    static bool show_preview_window = true;
-    if (show_preview_window) {
-      if (ImGui::Begin("Preview Window", &show_preview_window,
-                       ImGuiWindowFlags_MenuBar)) {
-        ImGui::Text("Hello World!");
-#if 0
-      if (ImGui::Button("create an tensor")) {
-        torch::Tensor tensor = torch::rand({2, 3});
-        std::cout << tensor << std::endl;
-      }
-#endif
-        float samples[120];
-        for (int i = 0; i < 120; ++i) {
-          samples[i] = sinf(i * 0.2f + ImGui::GetTime() * 1.5f);
-        }
-        ImGui::PlotLines("Samples", samples, IM_ARRAYSIZE(samples));
-        ImGui::PlotHistogram("Samples", samples, IM_ARRAYSIZE(samples));
-        ImGui::End();
-      }
+    ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
+    ImGuiViewport *viewport = ImGui::GetMainViewport();
+
+    if (ImGui::DockBuilderGetNode(dockspace_id) == nullptr) {
+      ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+      ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+      ImGuiID dock_id_left_sidebar = 0;
+      ImGuiID dock_id_main = dockspace_id;
+      ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Left, 0.20f,
+                                  &dock_id_left_sidebar, &dock_id_main);
+      ImGuiID dock_id_left_sidebar_top = 0;
+      ImGuiID dock_id_left_sidebar_bottom = 0;
+      ImGui::DockBuilderSplitNode(dock_id_left_sidebar, ImGuiDir_Up, 0.50f,
+                                  &dock_id_left_sidebar_top,
+                                  &dock_id_left_sidebar_bottom);
+      ImGui::DockBuilderDockWindow("Model Viewer", dock_id_main);
+      ImGui::DockBuilderDockWindow("Dear ImGui Demo", dock_id_left_sidebar_top);
+      ImGui::DockBuilderDockWindow("Helper Window",
+                                   dock_id_left_sidebar_bottom);
+      ImGui::DockBuilderFinish(dockspace_id);
     }
 
-    static bool show_model_viewer = true;
+    ImGui::DockSpaceOverViewport(dockspace_id, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+
+    if (ImGui::BeginMainMenuBar()) {
+      if (ImGui::BeginMenu("Windows")) {
+        ImGui::MenuItem("Demo Window", nullptr, &show_demo_window);
+        ImGui::MenuItem("Model Viewer", nullptr, &show_model_viewer);
+        ImGui::EndMenu();
+      }
+      ImGui::EndMainMenuBar();
+    }
+
+    if (show_demo_window) {
+      ImGui::ShowDemoWindow(&show_demo_window);
+    }
+
     if (show_model_viewer) {
       if (ImGui::Begin("Model Viewer", &show_model_viewer,
                        ImGuiWindowFlags_None)) {
