@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <memory>
 
+#include "widget/menu/top.h"
 #include "widget/model_viewer/viewer.h"
 
 #if 0
@@ -72,8 +73,8 @@ int main() {
   SDL_Event e;
 
   auto model_viewer = std::make_shared<ModelViewer>();
-  bool show_demo_window = true;
-  bool show_model_viewer = true;
+  TopMenuState menu_state;
+  menu_state.show_demo_window = true;
 
   while (running) {
     while (SDL_PollEvent(&e)) {
@@ -113,32 +114,73 @@ int main() {
       ImGui::DockBuilderFinish(dockspace_id);
     }
 
-    ImGui::DockSpaceOverViewport(dockspace_id, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::DockSpaceOverViewport(dockspace_id, viewport,
+                                 ImGuiDockNodeFlags_PassthruCentralNode);
 
-    if (ImGui::BeginMainMenuBar()) {
-      if (ImGui::BeginMenu("Windows")) {
-        ImGui::MenuItem("Demo Window", nullptr, &show_demo_window);
-        ImGui::MenuItem("Model Viewer", nullptr, &show_model_viewer);
-        ImGui::EndMenu();
-      }
-      ImGui::EndMainMenuBar();
+    ShowTopMenu(menu_state);
+
+    if (menu_state.show_demo_window) {
+      ImGui::ShowDemoWindow(&menu_state.show_demo_window);
     }
 
-    if (show_demo_window) {
-      ImGui::ShowDemoWindow(&show_demo_window);
-    }
-
-    if (show_model_viewer) {
-      if (ImGui::Begin("Model Viewer", &show_model_viewer,
+    if (menu_state.show_model_viewer) {
+      if (ImGui::Begin("Model Viewer", &menu_state.show_model_viewer,
                        ImGuiWindowFlags_None)) {
-        {
-          ImVec2 content_area_size = ImGui::GetWindowContentRegionMax();
-          // model_viewer->set_size(content_area_size);
-          model_viewer->set_size(ImVec2{0, 0});
-        }
+        ImVec2 content_area_size = ImGui::GetWindowContentRegionMax();
+        // Placeholder for future size negotiation.
+        model_viewer->set_size(ImVec2{0, 0});
         model_viewer->draw();
-        ImGui::End();
       }
+      ImGui::End();
+    }
+
+    if (menu_state.show_inspector_panel) {
+      if (ImGui::Begin("Model Inspector", &menu_state.show_inspector_panel,
+                       ImGuiWindowFlags_None)) {
+        ImGui::Text("Current model: %s", menu_state.current_model.c_str());
+        ImGui::Text("Device: %s",
+                    menu_state.device_connected ? "Connected" : "Disconnected");
+        ImGui::Text("Simulation: %s",
+                    menu_state.simulation_running ? "Running" : "Idle");
+        ImGui::Text("Monitoring: %s",
+                    menu_state.network_monitoring ? "Enabled" : "Muted");
+        ImGui::Text("Traces: %s",
+                    menu_state.recording_traces ? "Recording" : "Idle");
+      }
+      ImGui::End();
+    }
+
+    if (menu_state.show_network_console) {
+      if (ImGui::Begin("Network Console", &menu_state.show_network_console,
+                       ImGuiWindowFlags_None)) {
+        ImGui::Text("Device link: %s",
+                    menu_state.device_connected ? "Online" : "Offline");
+        ImGui::Text("Traffic monitor: %s",
+                    menu_state.network_monitoring ? "On" : "Off");
+        ImGui::Text("Last action: %s", menu_state.status_message.c_str());
+      }
+      ImGui::End();
+    }
+
+    if (menu_state.show_profiler_window) {
+      if (ImGui::Begin("Profiler", &menu_state.show_profiler_window,
+                       ImGuiWindowFlags_None)) {
+        ImGui::Text("Traces: %s",
+                    menu_state.recording_traces ? "Recording" : "Stopped");
+        float progress = menu_state.simulation_running ? 0.75f : 0.0f;
+        ImGui::ProgressBar(progress);
+      }
+      ImGui::End();
+    }
+
+    if (menu_state.show_helper_window) {
+      if (ImGui::Begin("Helper Window", &menu_state.show_helper_window,
+                       ImGuiWindowFlags_None)) {
+        ImGui::TextWrapped(
+            "Use the tabs to inspect the active graph, launch deployments, "
+            "and monitor connected devices.");
+      }
+      ImGui::End();
     }
 
     ImGui::Render();
