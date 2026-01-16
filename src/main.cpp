@@ -17,9 +17,23 @@ int main() {
     SDL_Log("unable to init SDL3");
     SDL_Quit();
   }
+  int screen_counts = 0;
+  SDL_DisplayID *screens = SDL_GetDisplays(&screen_counts);
+  if (screen_counts <= 0) {
+    SDL_Log("unable to get screen counts. error: %s", SDL_GetError());
+    SDL_Quit();
+  }
+  SDL_Log("screen counts: %d", screen_counts);
+  SDL_DisplayID main_screen_id = screens[0];
+  SDL_free(screens);
 
-  constexpr int width = 1920;
-  constexpr int height = 1280;
+  SDL_Rect screen_bounds;
+  if (!SDL_GetDisplayUsableBounds(main_screen_id, &screen_bounds)) {
+    SDL_Log("unable to get screen bounds. cause: %s", SDL_GetError());
+  }
+  int width = (int)(screen_bounds.w * 0.8);
+  int height = (int)(screen_bounds.h * 0.8);
+  SDL_Log("usable bounds: w = %d, h = %d", screen_bounds.w, screen_bounds.h);
   SDL_Window *window =
       SDL_CreateWindow("MyNN", width, height, SDL_WINDOW_RESIZABLE);
   if (!window) {
@@ -114,6 +128,7 @@ int main() {
       ImGui::DockBuilderFinish(dockspace_id);
     }
 
+    // submit dockspace
     ImGui::DockSpaceOverViewport(dockspace_id, viewport,
                                  ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -123,52 +138,13 @@ int main() {
       ImGui::ShowDemoWindow(&menu_state.show_demo_window);
     }
 
-    if (menu_state.show_model_viewer) {
-      if (ImGui::Begin("Model Viewer", &menu_state.show_model_viewer,
+    if (menu_state.show_graph_viewer) {
+      if (ImGui::Begin("Model Viewer", &menu_state.show_graph_viewer,
                        ImGuiWindowFlags_None)) {
         ImVec2 content_area_size = ImGui::GetWindowContentRegionMax();
         // Placeholder for future size negotiation.
         model_viewer->set_size(ImVec2{0, 0});
         model_viewer->draw();
-      }
-      ImGui::End();
-    }
-
-    if (menu_state.show_inspector_panel) {
-      if (ImGui::Begin("Model Inspector", &menu_state.show_inspector_panel,
-                       ImGuiWindowFlags_None)) {
-        ImGui::Text("Current model: %s", menu_state.current_model.c_str());
-        ImGui::Text("Device: %s",
-                    menu_state.device_connected ? "Connected" : "Disconnected");
-        ImGui::Text("Simulation: %s",
-                    menu_state.simulation_running ? "Running" : "Idle");
-        ImGui::Text("Monitoring: %s",
-                    menu_state.network_monitoring ? "Enabled" : "Muted");
-        ImGui::Text("Traces: %s",
-                    menu_state.recording_traces ? "Recording" : "Idle");
-      }
-      ImGui::End();
-    }
-
-    if (menu_state.show_network_console) {
-      if (ImGui::Begin("Network Console", &menu_state.show_network_console,
-                       ImGuiWindowFlags_None)) {
-        ImGui::Text("Device link: %s",
-                    menu_state.device_connected ? "Online" : "Offline");
-        ImGui::Text("Traffic monitor: %s",
-                    menu_state.network_monitoring ? "On" : "Off");
-        ImGui::Text("Last action: %s", menu_state.status_message.c_str());
-      }
-      ImGui::End();
-    }
-
-    if (menu_state.show_profiler_window) {
-      if (ImGui::Begin("Profiler", &menu_state.show_profiler_window,
-                       ImGuiWindowFlags_None)) {
-        ImGui::Text("Traces: %s",
-                    menu_state.recording_traces ? "Recording" : "Stopped");
-        float progress = menu_state.simulation_running ? 0.75f : 0.0f;
-        ImGui::ProgressBar(progress);
       }
       ImGui::End();
     }
